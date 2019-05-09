@@ -66,7 +66,21 @@ server.delete("/api/users/:id", (req, res) => {
     });
 });
 
-
+server.put("/api/users/:id", (req, res) => {
+    const { id } = req.params;
+    const changes = req.body;
+    db.update(id, changes)
+    .then(updated => {
+        if (updated) {
+            res.status(200).json(updated);
+        } else {
+            res.status(400).json({ message: "The user with the specified ID does not exist"});
+        }
+    })
+    .catch(error => {
+        res.status(500).json({ message: "The user information could not be modified."});
+    });
+});
 
 
 server.listen(5678, () => {
