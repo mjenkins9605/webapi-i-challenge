@@ -11,34 +11,61 @@ server.get("/", (req, res) => {
   res.send("It's alive!");
 });
 
-
 server.get("/api/users", (req, res) => {
   db.find()
     .then(users => {
       res.json(users);
     })
     .catch(err => {
+      res.status(500).json({
+        error: err,
+        message: "The users information could not be retrieved."
+      });
+    });
+});
+
+server.post("/api/users", (req, res) => {
+  const user = req.body;
+  db.insert(user)
+    .then(user => {
+      res.status(201).json(user);
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: err,
+        message: "There was an error while saving the user to the database"
+      });
+    });
+});
+
+server.get("/api/users:id", (req, res) => {
+  const userId = req.params.id;
+  db.findById(userId)
+    .then(users => {
+      res.json(users);
+    })
+    .catch(err => {
       res
-        .status(500)
+        .status(404)
         .json({
           error: err,
-          message: "The users information could not be retrieved."
+          message: "The user with the specified ID does not exist."
         });
     });
 });
 
 
-server.post('/api/users', (req, res) => {
-    const user = req.body 
-    db.insert(user)
-    .then(
-        user =>{
-            res.status(201).json(user)
-        }
-    ).catch( err => {
-        res.status(500).json({error: err, message: 'There was an error while saving the user to the database'})
+server.delete("/api/users/:id", (req, res) => {
+    const id = req.params.id;
+    db.remove(id)
+    .then(deleted => {
+        res.status(201).end();
     })
- })
+    .catch(error => {
+        res.status(404).json({ message: "The user with the specified ID does not exist."});
+    });
+});
+
 
 
 
